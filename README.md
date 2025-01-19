@@ -1,101 +1,77 @@
-# Filesystem MCP Server
+# Replicate MCP Server
 
-Node.js server implementing Model Context Protocol (MCP) for filesystem operations.
+An MCP server that allows you to interact with Replicate's machine learning models directly through the Model Context Protocol. This server enables AI systems to run models and manage predictions on Replicate without dealing with API implementation details.
 
-## Features
+## Installation
 
-- Read/write files
-- Create/list/delete directories
-- Move files/directories
-- Search files
-- Get file metadata
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/replicate-mcp.git
+cd replicate-mcp
+```
 
-**Note**: The server will only allow operations within directories specified via `args`.
+2. Install dependencies and build:
+```bash
+yarn install
+yarn build
+```
 
-## API
+3. Configure the server in your Claude Desktop config file (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
-### Resources
-
-- `file://system`: File system operations interface
-
-### Tools
-
-- **read_file**
-  - Read complete contents of a file
-  - Input: `path` (string)
-  - Reads complete file contents with UTF-8 encoding
-
-- **read_multiple_files**
-  - Read multiple files simultaneously
-  - Input: `paths` (string[])
-  - Failed reads won't stop the entire operation
-
-- **write_file**
-  - Create new file or overwrite existing (exercise caution with this)
-  - Inputs:
-    - `path` (string): File location
-    - `content` (string): File content
-
-- **create_directory**
-  - Create new directory or ensure it exists
-  - Input: `path` (string)
-  - Creates parent directories if needed
-  - Succeeds silently if directory exists
-
-- **list_directory**
-  - List directory contents with [FILE] or [DIR] prefixes
-  - Input: `path` (string)
-
-- **move_file**
-  - Move or rename files and directories
-  - Inputs:
-    - `source` (string)
-    - `destination` (string)
-  - Fails if destination exists
-
-- **search_files**
-  - Recursively search for files/directories
-  - Inputs:
-    - `path` (string): Starting directory
-    - `pattern` (string): Search pattern
-  - Case-insensitive matching
-  - Returns full paths to matches
-
-- **get_file_info**
-  - Get detailed file/directory metadata
-  - Input: `path` (string)
-  - Returns:
-    - Size
-    - Creation time
-    - Modified time
-    - Access time
-    - Type (file/directory)
-    - Permissions
-
-- **list_allowed_directories**
-  - List all directories the server is allowed to access
-  - No input required
-  - Returns:
-    - Directories that this server can read/write from
-
-## Usage with Claude Desktop
-Add this to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "filesystem": {
-      "command": "npx",
+    "replicate": {
+      "command": "node",
       "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/Users/username/Desktop",
-        "/path/to/other/allowed/dir"
-      ]
+        "/directory/to/dist/index"
+      ],
+      "env": {
+        "REPLICATE_API_TOKEN": "apiKey"
+      }
     }
   }
 }
 ```
 
-## License
+Replace `/directory/to/dist/index` with the actual path to your built index.js file, and `apiKey` with your Replicate API token.
 
-This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
+## What Can You Do With This Server?
+
+This MCP server provides four main capabilities:
+
+### 1. Run Models Directly
+
+Use the `run_model` tool when you want to quickly run a model and get its results immediately. Simply specify which model you want to use (in the format "owner/model" or "owner/model:version") and provide the required input parameters for that specific model.
+
+### 2. Create Predictions
+
+For longer-running models, use the `create_prediction` tool to start a model run asynchronously. You can optionally set up webhook notifications to track the prediction's progress through different stages (start, output, logs, completion).
+
+### 3. Check Prediction Status
+
+Once you've created a prediction, use the `get_prediction` tool to check its current status and retrieve any available results. Just provide the prediction ID and you'll get back the complete status including any outputs or error messages.
+
+### 4. Cancel Predictions
+
+If you no longer need a prediction to complete, use the `cancel_prediction` tool to stop it and free up resources. This only works for predictions that are still in the "starting" or "processing" state.
+
+## Using the Server
+
+To use this MCP server, you'll need:
+
+1. A Replicate API token set in your environment
+2. The model you want to use (in owner/model format)
+3. The appropriate input parameters for your chosen model
+
+The server will handle all the communication with Replicate's API, error handling, and response formatting, making it simple to integrate Replicate's capabilities into your AI system.
+
+## Error Handling
+
+The server provides clear error messages when:
+- The model path format is incorrect
+- Required input parameters are missing
+- A prediction fails
+- You try to use an unknown tool
+
+Each error response includes a descriptive message to help you understand and fix the issue.
