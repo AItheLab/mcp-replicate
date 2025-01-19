@@ -1,0 +1,32 @@
+{
+  "name": "server-replicate",
+  "version": "0.5.1",
+  "description": "MCP server for Replicate access",
+  "license": "MIT",
+  "author": "Alex Man",
+  "homepage": "",
+  "bugs": "",
+  "type": "module",
+  "bin": {
+    "mcp-server-replicate": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepare": "yarn run build",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "0.5.0",
+    "glob": "^10.3.10",
+    "replicate": "^0.27.1",
+    "zod-to-json-schema": "^3.23.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "shx": "^0.3.4",
+    "typescript": "^5.3.3"
+  }
+}
